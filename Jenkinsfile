@@ -77,16 +77,17 @@ pipeline {
           dockerImage = docker.build registry + ":V$BUILD_NUMBER"
                     }
                   }
+        }
         stage("Uplaod Image"){
         steps {
          script {
            docker.withRegistry('',registryCredential){
              dockerImage.push("V$BUILD_NUMBER")
              dockerImage.push("latest")
-           }
+                        }
                 }
               }
-                             }
+            }
 
          stage("REMOVE Unsued Docker Image"){
                   steps{
@@ -101,11 +102,5 @@ pipeline {
             sh "helm upgrade --install --force vprofile-stack helm/vprofilecharts  --set appimage=${registry}:V${BUILD_NUMBER} --namespace prod"
             }
           }
-
-
-
-        }
     }
-
-
 }
