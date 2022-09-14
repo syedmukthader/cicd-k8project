@@ -7,7 +7,7 @@ pipeline {
     }
 */
     environment {
-        registry="trydomain/testprofileapp"
+        registry="trydomain/vproappdock"
         registryCredential="dockerhub"
     }
 
@@ -72,26 +72,26 @@ pipeline {
         }
 
         stage('Build App Image'){
-          steps  {
-          script   {
-          dockerImage = docker.build registry + ":V$BUILD_NUMBER"
+          steps{
+          script {
+          dockerImage = docker.build registry + ":$BUILD_NUMBER"
                     }
                   }
         }
         stage("Uplaod Image"){
         steps {
          script {
-           docker.withRegistry('',registryCredential){
-             dockerImage.push("V$BUILD_NUMBER")
+           docker.withRegistry('',registryCredential) {
+             dockerImage.push("$BUILD_NUMBER")
              dockerImage.push("latest")
                         }
                 }
-              }
+              } 
             }
 
          stage("REMOVE Unsued Docker Image"){
                   steps{
-                  sh "docker rmi $registry:V$BUILD_NUMBER"
+                  sh "docker rmi $registry:$BUILD_NUMBER"
                   }
           }
 
@@ -99,8 +99,10 @@ pipeline {
 
           agent {label 'KOPS'}
             steps {
-            sh "helm upgrade --install --force vprofile-stack helm/vprofilecharts  --set appimage=${registry}:V${BUILD_NUMBER} --namespace prod"
+            sh "helm upgrade --install --force vprofile-stack helm/vprofilecharts  --set appimage=${registry}:${BUILD_NUMBER} --namespace prod"
             }
           }
+
+    
     }
 }
